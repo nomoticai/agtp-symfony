@@ -19,3 +19,11 @@ services:
       - '@agtp.handler_collector'
     tags:
       - { name: console.command }
+
+  # The Symfony Console command `bin/console agtp:export-manifest`.
+  agtp.export_manifest_command:
+    class: Agtp\Symfony\Command\AgtpExportManifestCommand
+    arguments:
+      - '@agtp.handler_collector'
+    tags:
+      - { name: console.command }

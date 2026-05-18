@@ -19,9 +19,17 @@
         "symfony/http-kernel": "^6.4 || ^7.0",
         "symfony/config": "^6.4 || ^7.0"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    },
     "autoload": {
         "psr-4": {
             "Agtp\\Symfony\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Agtp\\Symfony\\Tests\\": "tests/"
         }
     },
     "extra": {
@@ -30,5 +38,8 @@
                 "Agtp\\Symfony\\AgtpBundle": ["all"]
             }
         }
+    },
+    "scripts": {
+        "test": "phpunit --colors=always"
     }
 }

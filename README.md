@@ -5,20 +5,47 @@ service container. The pattern matches the rest of Symfony: register
 your handler as a service, tag it with `agtp.endpoint`, and you're
 done.
 
-Pairs with two Composer packages from the [`agtp-php`][agtp-php-repo]
-repo:
-- [`agtp/agtp-php`][agtp-php] — the language library
-- [`agtp/mod-php`][mod-php] — the runtime client (wrapped by the
-  `agtp:serve` Symfony Console command)
+Pairs with:
+- [`agtp-php`](https://github.com/nomoticai/agtp-php) — the language
+  library and the `mod_php` runtime client (wrapped by the
+  `agtp:serve` Symfony Console command).
 
-The reference `agtpd` daemon (Python) ships from the [AGTP spec
-repo][spec-repo].
+## Why AGTP instead of HTTP controllers?
+
+Same reasons that apply to Drupal — see the [agtp-drupal
+README](https://github.com/nomoticai/agtp-drupal) for the full pitch.
+The short version:
+
+- **One Symfony kernel boot per worker, not per request.** AGTP
+  handlers run inside a long-lived `bin/console agtp:serve` worker.
+  Kernel boot is paid once. Subsequent requests are dispatch +
+  handler logic.
+- **Identity, scope, and attribution at the protocol level.** Your
+  handler receives `$ctx->agentId` already verified and
+  `$ctx->authorityScope` already scope-checked. The daemon emits a
+  signed Attribution-Record per invocation.
+- **No conflict with your HTTP app.** AGTP runs on 4480 via `agtpd`.
+  Your HTTP controllers continue to answer on 80/443 as before.
 
 ## Requirements
 
 - Symfony 6.4+ or 7+
 - PHP 8.1+
 - `agtpd` running locally or on the same host
+
+## Deployment compatibility
+
+| Environment | Long-lived workers? | Status |
+|---|---|---|
+| Self-hosted (VPS, bare metal, Kubernetes, Docker Compose) | Yes — systemd, Supervisor, k8s `Deployment` | **Supported** |
+| Platform.sh | Yes — native worker containers (same pattern as Symfony Messenger workers) | Should work; recipe pending |
+| Heroku-style PaaS with worker dynos | Yes — declare in `Procfile` | Should work |
+| Serverless / FaaS (Lambda, Cloud Run jobs) | No | Not supported. AGTP needs a persistent process. |
+
+The bundle is **self-hosted-first**. The Symfony Messenger
+deployment model translates almost verbatim: anywhere you can run a
+`bin/console messenger:consume` worker, you can run `bin/console
+agtp:serve`.
 
 ## Install
 
@@ -35,9 +62,9 @@ return [
 ];
 ```
 
-(Symfony Flex auto-enables bundles via the `extra.symfony.bundles`
-declaration in this package's `composer.json`; on a non-Flex setup,
-add the line manually.)
+(Symfony Flex auto-enables the bundle via the `extra.symfony.bundles`
+declaration in `composer.json`; on a non-Flex setup, add the line
+manually.)
 
 ## Writing a handler
 
@@ -96,7 +123,7 @@ services:
       - { name: agtp.endpoint }
 ```
 
-Or with Symfony's auto-configuration, tag the class via attribute:
+Or, with Symfony's autoconfiguration, tag the class via attribute:
 
 ```php
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
@@ -104,6 +131,22 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag('agtp.endpoint')]
 final class RoomHandlers { /* ... */ }
 ```
+
+## Generate the daemon manifest
+
+After authoring handlers, project the `#[AgtpEndpoint]` attributes
+into daemon-side endpoint TOML files:
+
+```bash
+# Write one TOML per handler into the agtpd endpoints directory
+bin/console agtp:export-manifest --output=/etc/agtpd/endpoints
+
+# Or preview to stdout
+bin/console agtp:export-manifest --dry-run
+```
+
+The attribute is the source of truth. Re-run the command after every
+handler change.
 
 ## Running the worker
 
@@ -153,21 +196,8 @@ public function testBookSuccess(): void
 
 ## Related
 
-- [AGTP spec repo][spec-repo] — drafts, `agtpd` reference daemon,
-  cross-language conformance tests
-- [Server-modules architecture][arch] — daemon / module / library
-  layering
-- [`agtp-php`][agtp-php-repo] — handler SDK + `mod_php` runtime
-- [`agtp-drupal`][drupal] — Drupal equivalent (Drupal's DI is forked
-  from Symfony's, so the patterns are nearly identical)
-- [`agtp-laravel`][laravel], [`agtp-wordpress`][wp] — sibling
-  framework integrations
-
-[agtp-php]: https://packagist.org/packages/agtp/agtp-php
-[mod-php]: https://packagist.org/packages/agtp/mod-php
-[agtp-php-repo]: https://github.com/nomoticai/agtp-php
-[spec-repo]: https://github.com/nomoticai/agtp
-[arch]: https://github.com/nomoticai/agtp/blob/main/docs/architecture/server-modules.md
-[drupal]: https://github.com/nomoticai/agtp-drupal
-[laravel]: https://github.com/nomoticai/agtp-laravel
-[wp]: https://github.com/nomoticai/agtp-wordpress
+- [`agtp-php`](https://github.com/nomoticai/agtp-php) — the underlying
+  PHP library and runtime
+- [`agtp-drupal`](https://github.com/nomoticai/agtp-drupal) — Drupal
+  equivalent (Drupal's DI is forked from Symfony's, so the patterns
+  are nearly identical)
