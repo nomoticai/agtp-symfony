@@ -5,10 +5,14 @@ service container. The pattern matches the rest of Symfony: register
 your handler as a service, tag it with `agtp.endpoint`, and you're
 done.
 
-Pairs with:
-- [`agtp-php`](../agtp-php/) — the language library
-- [`mod_php`](../mod_php/) — the runtime client (wrapped by the
+Pairs with two Composer packages from the [`agtp-php`][agtp-php-repo]
+repo:
+- [`agtp/agtp-php`][agtp-php] — the language library
+- [`agtp/mod-php`][mod-php] — the runtime client (wrapped by the
   `agtp:serve` Symfony Console command)
+
+The reference `agtpd` daemon (Python) ships from the [AGTP spec
+repo][spec-repo].
 
 ## Requirements
 
@@ -149,7 +153,21 @@ public function testBookSuccess(): void
 
 ## Related
 
-- [`docs/architecture/server-modules.md`](../docs/architecture/server-modules.md)
-- [`agtp-php/`](../agtp-php/) — the underlying PHP library
-- [`agtp_drupal/`](../agtp_drupal/) — Drupal equivalent (Drupal's
-  DI is forked from Symfony's, so the patterns are nearly identical)
+- [AGTP spec repo][spec-repo] — drafts, `agtpd` reference daemon,
+  cross-language conformance tests
+- [Server-modules architecture][arch] — daemon / module / library
+  layering
+- [`agtp-php`][agtp-php-repo] — handler SDK + `mod_php` runtime
+- [`agtp-drupal`][drupal] — Drupal equivalent (Drupal's DI is forked
+  from Symfony's, so the patterns are nearly identical)
+- [`agtp-laravel`][laravel], [`agtp-wordpress`][wp] — sibling
+  framework integrations
+
+[agtp-php]: https://packagist.org/packages/agtp/agtp-php
+[mod-php]: https://packagist.org/packages/agtp/mod-php
+[agtp-php-repo]: https://github.com/nomoticai/agtp-php
+[spec-repo]: https://github.com/nomoticai/agtp
+[arch]: https://github.com/nomoticai/agtp/blob/main/docs/architecture/server-modules.md
+[drupal]: https://github.com/nomoticai/agtp-drupal
+[laravel]: https://github.com/nomoticai/agtp-laravel
+[wp]: https://github.com/nomoticai/agtp-wordpress
