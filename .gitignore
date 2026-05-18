@@ -1,0 +1,82 @@
+# =============================================================================
+# agtp-symfony — Symfony bundle wrapping agtp-php
+# =============================================================================
+# Composer: agtp/agtp-symfony  (type: symfony-bundle)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Secrets — never commit any of these, ever
+# -----------------------------------------------------------------------------
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+*.der
+*.gpg
+*.asc
+.env
+.env.*
+.env.local
+.env.local.php
+!.env.example
+secrets/
+credentials/
+
+# -----------------------------------------------------------------------------
+# Composer artifacts
+# -----------------------------------------------------------------------------
+vendor/
+composer.lock
+.phpunit.result.cache
+.phpunit.cache/
+
+# PHPUnit coverage reports
+coverage/
+clover.xml
+
+# -----------------------------------------------------------------------------
+# Symfony cache / var directories
+# -----------------------------------------------------------------------------
+# A consuming app sets these via bin/console; they don't belong in
+# the bundle repo.
+var/cache/
+var/log/
+var/sessions/
+.phpcs-cache
+
+# -----------------------------------------------------------------------------
+# Editor / IDE / agent tooling
+# -----------------------------------------------------------------------------
+.vscode/
+.idea/
+.claude/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# -----------------------------------------------------------------------------
+# OS junk
+# -----------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# -----------------------------------------------------------------------------
+# Local notes / scratchpads
+# -----------------------------------------------------------------------------
+NOTES.md
+TODO.md
+SCRATCH.md
+*.scratch
+*.local
